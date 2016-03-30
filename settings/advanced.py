@@ -13,5 +13,8 @@ __description__ = """
 # ['--ignore-ssl-errors=true', '--ssl-protocol=tlsv1']
 service_args = None
 
-# Режим отладки
+# Размеры каптчи. Две пары координат: верхний левый угол и нижний правый.
+captcha_size = (325, 329, 476, 378)
+
+# Режим отладки.
 debug = True

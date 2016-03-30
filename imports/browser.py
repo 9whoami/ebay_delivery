@@ -6,6 +6,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.remote.webelement import WebElement
 import settings as config
 
 __author__ = 'whoami'
@@ -46,6 +48,9 @@ class WebDriver(metaclass=SwithSuperMetaclass):
     def __init__(self):
         super().__init__(**self.driver_profile)
 
+    def __del__(self):
+        self.close()
+
     @property
     def driver_profile(self):
         if SwithSuperMetaclass.web_driver_select():
@@ -74,12 +79,15 @@ class WebDriver(metaclass=SwithSuperMetaclass):
             element = None
         return element
 
-    def get_element_or_none(self, xpath):
+    def get_element_or_none(self, xpath: 'str or WebElement'):
         """
         Получение элемента по xpath
         :param xpath:
         :return:
         """
+        if isinstance(xpath, WebElement):
+            return xpath
+
         element = self._get_element(By.XPATH, xpath)
         return element
 
@@ -145,5 +153,88 @@ class WebDriver(metaclass=SwithSuperMetaclass):
             elements = []
         return elements
 
-    def __del__(self):
-        self.close()
+    @staticmethod
+    def get_element_info(web_element, attributes: 'list or str') -> list:
+        if web_element is None:
+            return None
+
+        if isinstance(attributes, (list, tuple)):
+            result = [web_element.get_attribute(attribute) for attribute in
+                      attributes]
+        elif isinstance(attributes, str):
+            result = web_element.get_attribute(attributes)
+        else:
+            # result = None
+            raise ValueError(
+                "Expected 'list' or 'str' not {!r}".format(attributes))
+
+        return result
+
+    def get_text_from_element(self, xpath: str) -> str:
+        web_element = self.get_element_or_none(xpath)
+        inner_text = web_element.text if web_element else None
+        return inner_text
+
+    def filling_web_element(self, xpath: str, value: str,
+                            name_attr: 'str or list' = None):
+        web_element = self.get_element_or_none(xpath)
+        if name_attr is None:
+            name_attr = 'name', 'id',
+
+        if not web_element:
+            return False
+
+        name = self.get_element_info(web_element, name_attr)
+
+        try:
+            try:
+                web_element.clear()
+            except Exception:
+                pass
+            web_element.send_keys(value)
+            return True
+        except Exception:
+            return False
+
+    def btn_click(self, xpath: str, screen: bool = True):
+        if screen:
+            self.take_screenshot()
+
+        btn = self.get_element_or_none(xpath)
+        if btn is None:
+            return False
+
+        try:
+            btn.click()
+            return True
+        except Exception as e:
+            return False
+
+    def checkbox_checked(self, xpath: str):
+        web_elem = self.get_element_or_none(xpath)
+        if web_elem is None:
+            return False
+
+        checked = self.get_element_info(web_elem, 'checked')
+        try:
+            if checked:
+                return True
+
+            return self.btn_click(xpath, screen=False)
+        except Exception as e:
+            return False
+
+    def selection(self, xpath, value):
+        element = self.get_element_or_none(xpath)
+        if element is None:
+            return False
+
+        try:
+            select = Select(element)
+            try:
+                select.select_by_value(value)
+            except Exception:
+                select.select_by_visible_text(value)
+            return True
+        except Exception as e:
+            return False
