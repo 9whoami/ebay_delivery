@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import settings as config
 from imports.captha_lib import RecognizeCaptcha
+from imports.logger import Logger
 
 __author__ = 'whoami'
 __version__ = '0.0.0'
@@ -8,6 +9,7 @@ __date__ = '27.03.16 0:55'
 __description__ = """
 Вход в аккаунт
 """
+logger = Logger()
 
 
 class Signin:
@@ -29,25 +31,24 @@ class Signin:
             assert self.fill_passwd()
             self.submit_form()
             assert self.check_signin()
+            logger.info("Вошли на сайт")
             return True
         except AssertionError:
+            logger.error('Не удалось войти на сайт')
             return False
 
     def fill_login(self):
         xpath = config.login_xpath['login']
-        name = 'placeholder'
 
-        return self.browser.filling_web_element(xpath, self.login, name)
+        return self.browser.filling_web_element(xpath, self.login)
 
     def fill_passwd(self):
         xpath = config.login_xpath['passwd']
-        name = 'placeholder'
 
-        return self.browser.filling_web_element(xpath, self.password, name)
+        return self.browser.filling_web_element(xpath, self.password)
 
     def submit_form(self):
         xpath = config.login_xpath['submit']
-        # name = 'value'
 
         return self.browser.btn_click(xpath)
 
@@ -78,9 +79,4 @@ class Signin:
             return False
 
         self.browser.get(redirect_url)
-        my_name = self.browser.get_text_from_element(xpath_to_my_name)
-        if my_name:
-            print(my_name)
-            return True
-        else:
-            return False
+        return self.browser.get_text_from_element(xpath_to_my_name)

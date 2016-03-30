@@ -9,8 +9,6 @@ __description__ = """
 
 antigate_conf = dict(file='antigate.conf', section='default')
 
-captcha_file = "captcha.jpg"
-
 login_xpath = dict(
     login=".//input[@type='text']",
     passwd=".//*[@placeholder='Password']",

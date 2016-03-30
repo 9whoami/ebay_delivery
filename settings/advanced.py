@@ -14,7 +14,13 @@ __description__ = """
 service_args = None
 
 # Размеры каптчи. Две пары координат: верхний левый угол и нижний правый.
-captcha_size = (325, 329, 476, 378)
+login_captcha_size = (325, 329, 476, 378)
+
+# Файл с аккаунтами. Маска login:password
+accounts_file = 'accounts.txt'
+
+# Файл с текстом сообщения. Первая строка файла - заголовок сообщения
+message_file = None
 
 # Режим отладки.
 debug = True

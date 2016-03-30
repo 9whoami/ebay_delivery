@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import settings as config
+from imports.logger import Logger
 from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
@@ -8,7 +10,6 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.remote.webelement import WebElement
-import settings as config
 
 __author__ = 'whoami'
 __version__ = '0.0.0'
@@ -16,6 +17,7 @@ __date__ = '27.03.16 0:46'
 __description__ = """
 Обертка для selenium.webdriver
 """
+logger = Logger()
 
 
 class SwithSuperMetaclass(type):
@@ -35,16 +37,19 @@ class SwithSuperMetaclass(type):
     def web_driver_select():
         web_drivers = {config.PhantomJS: 1, config.Firefox: 0}
         try:
+            logger.info(
+                "Попытка запуска браузера. WebDriver: {!r}".format(
+                    config.web_driver))
             return web_drivers[config.web_driver]
         except KeyError:
             raise SystemExit("Укажите правильный параметр web driver")
 
 
 class WebDriver(metaclass=SwithSuperMetaclass):
+
     """
     Обертка для selenium.webdriver
     """
-
     def __init__(self):
         super().__init__(**self.driver_profile)
 
@@ -58,7 +63,8 @@ class WebDriver(metaclass=SwithSuperMetaclass):
             service_args = config.service_args if \
                 isinstance(config.service_args, list) else list()
             profile = dict(desired_capabilities=dcap,
-                           service_args=service_args)
+                           service_args=service_args,
+                           service_log_path=config.log_dir)
         else:
             ff_profile = webdriver.FirefoxProfile()
             profile = dict(firefox_profile=ff_profile)
@@ -87,7 +93,6 @@ class WebDriver(metaclass=SwithSuperMetaclass):
         """
         if isinstance(xpath, WebElement):
             return xpath
-
         element = self._get_element(By.XPATH, xpath)
         return element
 
@@ -103,8 +108,10 @@ class WebDriver(metaclass=SwithSuperMetaclass):
     def take_screenshot(self):
         file_name = '{}.png'.format(str(datetime.now()))
         try:
-            self.save_screenshot(config.log_dir + file_name)
+            self.save_screenshot(config.screen_dir + file_name)
+            logger.info('Сохранен скрин под именем {!r}'.format(file_name))
         except:
+            logger.error("Не удалось сохранить скриншот!!!")
             return None
         return file_name
 
@@ -118,11 +125,15 @@ class WebDriver(metaclass=SwithSuperMetaclass):
             timeout = config.load_timeout + i * 10
             try:
                 self.set_page_load_timeout(timeout)
+                logger.info(
+                    '{!r}-ая попытка перехода по url: {!r}'.format(i, url))
                 self._get(url)
+                logger.info('Страница загружена')
 
                 self.set_page_load_timeout(config.load_timeout)
                 return True
-            except Exception:
+            except Exception as e:
+                logger.warning('Не удалось загрузить страницу: {!r}'.find(e))
                 continue
 
     def _get(self, url):
@@ -137,7 +148,7 @@ class WebDriver(metaclass=SwithSuperMetaclass):
         self.take_screenshot()
 
         if is_not_load(result):
-            raise Exception
+            raise Exception('Некоректный HTML')
 
         return result
 
@@ -155,8 +166,7 @@ class WebDriver(metaclass=SwithSuperMetaclass):
 
     @staticmethod
     def get_element_info(web_element, attributes: 'list or str') -> list:
-        if web_element is None:
-            return None
+        if web_element is None: return None
 
         if isinstance(attributes, (list, tuple)):
             result = [web_element.get_attribute(attribute) for attribute in
@@ -175,16 +185,9 @@ class WebDriver(metaclass=SwithSuperMetaclass):
         inner_text = web_element.text if web_element else None
         return inner_text
 
-    def filling_web_element(self, xpath: str, value: str,
-                            name_attr: 'str or list' = None):
+    def filling_web_element(self, xpath: str, value: str):
         web_element = self.get_element_or_none(xpath)
-        if name_attr is None:
-            name_attr = 'name', 'id',
-
-        if not web_element:
-            return False
-
-        name = self.get_element_info(web_element, name_attr)
+        if not web_element: return False
 
         try:
             try:
@@ -197,17 +200,15 @@ class WebDriver(metaclass=SwithSuperMetaclass):
             return False
 
     def btn_click(self, xpath: str, screen: bool = True):
-        if screen:
-            self.take_screenshot()
+        if screen: self.take_screenshot()
 
         btn = self.get_element_or_none(xpath)
-        if btn is None:
-            return False
+        if btn is None: return False
 
         try:
             btn.click()
             return True
-        except Exception as e:
+        except Exception:
             return False
 
     def checkbox_checked(self, xpath: str):
@@ -217,10 +218,7 @@ class WebDriver(metaclass=SwithSuperMetaclass):
 
         checked = self.get_element_info(web_elem, 'checked')
         try:
-            if checked:
-                return True
-
-            return self.btn_click(xpath, screen=False)
+            return True if checked else self.btn_click(xpath, screen=False)
         except Exception as e:
             return False
 
@@ -236,5 +234,5 @@ class WebDriver(metaclass=SwithSuperMetaclass):
             except Exception:
                 select.select_by_visible_text(value)
             return True
-        except Exception as e:
+        except Exception:
             return False

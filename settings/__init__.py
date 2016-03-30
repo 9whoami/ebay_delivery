@@ -12,11 +12,20 @@ try:
 except Exception as e:
     exit(e)
 
-if not log_dir.endswith(sep):
-    log_dir += sep
 
-if not log_dir.startswith(sep):
-    log_dir = sep + log_dir
+def _prepare_path(path):
 
-if not isdir(log_dir):
-    log_dir = getcwd() + log_dir
+    if not path.endswith(sep):
+        path += sep
+
+    if not path.startswith(sep):
+        path = sep + path
+
+    if not isdir(path):
+        path = getcwd() + path
+
+    return path
+
+log_dir = _prepare_path(log_dir)
+temp_dir = _prepare_path(temp_dir)
+screen_dir = _prepare_path(screen_dir)
