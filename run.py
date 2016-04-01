@@ -5,6 +5,7 @@ from sys import exit
 from imports.logger import Logger
 from imports.browser import WebDriver
 from ebay.login import Signin
+from ebay.search import Searching
 
 __author__ = 'whoami'
 __version__ = '0.0.0'
@@ -38,6 +39,7 @@ def main():
         logger.info('Запущен браузер')
 
         signin = Signin(browser, login, passwd)
+        search = Searching(browser)
 
     except Exception as e:
         logger.error('Работа программы завершена с сообщением {!r}'.format(e))
@@ -45,6 +47,7 @@ def main():
 
     try:
         assert signin.run()
+        assert search.run()
     except AssertionError:
         exit()
 

@@ -123,18 +123,19 @@ class WebDriver(metaclass=SwithSuperMetaclass):
         """
         for i in range(0, 4):
             timeout = config.load_timeout + i * 10
-            try:
-                self.set_page_load_timeout(timeout)
-                logger.info(
-                    '{!r}-ая попытка перехода по url: {!r}'.format(i, url))
-                self._get(url)
-                logger.info('Страница загружена')
+            self.set_page_load_timeout(timeout)
+            logger.info(
+                '{!r}-ая попытка перехода по url: {!r}'.format(i + 1, url))
 
-                self.set_page_load_timeout(config.load_timeout)
-                return True
+            try:
+                self._get(url)
             except Exception as e:
                 logger.warning('Не удалось загрузить страницу: {!r}'.find(e))
                 continue
+            else:
+                logger.info('Страница загружена')
+                self.set_page_load_timeout(config.load_timeout)
+                return True
 
     def _get(self, url):
         is_not_load = lambda page_source: load_error in page_source or \

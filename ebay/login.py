@@ -2,6 +2,7 @@
 import settings as config
 from imports.captha_lib import RecognizeCaptcha
 from imports.logger import Logger
+from imports.exceptions import SigninError
 
 __author__ = 'whoami'
 __version__ = '0.0.0'
@@ -31,11 +32,12 @@ class Signin:
             assert self.fill_passwd()
             self.submit_form()
             assert self.check_signin()
-            logger.info("Вошли на сайт")
-            return True
         except AssertionError:
             logger.error('Не удалось войти на сайт')
             return False
+        else:
+            logger.info("Вошли на сайт")
+            return True
 
     def fill_login(self):
         xpath = config.login_xpath['login']
@@ -61,7 +63,7 @@ class Signin:
 
         scr_name = self.browser.take_screenshot()
         recaptcha = RecognizeCaptcha()
-        recaptcha.recognize(scr_name)
+        recaptcha.recognize(scr_name, config.login_captcha_size)
         if recaptcha.captcha_result:
             return self.browser.filling_web_element(xpath_to_captcha_edit,
                                                     recaptcha.captcha_result)
@@ -75,8 +77,7 @@ class Signin:
 
         err_text = self.browser.get_text_from_element(xpath_to_error_text)
         if err_text:
-            print(err_text)
-            return False
+            raise SigninError(err_text)
 
         self.browser.get(redirect_url)
         return self.browser.get_text_from_element(xpath_to_my_name)
