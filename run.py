@@ -6,6 +6,7 @@ from imports.logger import Logger
 from imports.browser import WebDriver
 from ebay.login import Signin
 from ebay.search import Searching
+from ebay.delivery import Delivery
 
 __author__ = 'whoami'
 __version__ = '0.0.0'
@@ -25,8 +26,7 @@ def get_accounts():
 
     # TODO for test
     # with open(conf.accounts_file, 'w') as f:
-    #     for line in file_buffer:
-    #         f.writelines(line)
+    #    f.writelines('\n'.join(file_buffer))
 
     return account.split(':')
 
@@ -40,6 +40,7 @@ def main():
 
         signin = Signin(browser, login, passwd)
         search = Searching(browser)
+        delivery = Delivery(browser)
 
     except Exception as e:
         logger.error('Работа программы завершена с сообщением {!r}'.format(e))
@@ -48,6 +49,7 @@ def main():
     try:
         assert signin.run()
         assert search.run()
+        delivery.run(search.prepare_to_delivery())
     except AssertionError:
         exit()
 

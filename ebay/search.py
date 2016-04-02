@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
+from time import sleep
+
 import settings as config
 from imports.logger import Logger
 from imports.exceptions import KeywordsError
+from imports.exceptions import LinksToItemNotFoundError
 
 __author__ = 'whoami'
 __version__ = '0.0.0'
@@ -18,6 +21,7 @@ class Searching:
         self.keywords = config.keywords
         self.state_value = str(config.state_value)
         self.logger = Logger()
+
         self.x_keywords = config.search_xpath['keywords']
         self.x_located = config.search_xpath['located']
         self.x_state = config.search_xpath['state']
@@ -33,6 +37,9 @@ class Searching:
         self.x_per_page = config.result_custom_xpath['per_page']
         self.x_seller_info = config.result_custom_xpath['seller_info']
         self.x_submit_custom = config.result_custom_xpath['submit_custom']
+
+        self.x_lnk_to_item = config.items_xpath['links_to_item']
+        self.x_next_page = config.items_xpath['next_page']
 
         if not isinstance(self.keywords, str) or not self.keywords:
             raise KeywordsError("Не указан keywords!")
@@ -56,7 +63,6 @@ class Searching:
 
     def _customize_result(self):
         assert self.browser.btn_click(self.x_drop_menu)
-
         assert self.browser.btn_click(self.x_customize_btn)
         assert self.browser.btn_click(self.x_show_in)
         assert self.browser.btn_click(self.x_per_page)
@@ -67,3 +73,26 @@ class Searching:
         assert self.browser.btn_click(self.x_lnk_post_to)
         assert self.browser.selection(self.x_post_to, self.state_value)
         assert self.browser.btn_click(self.x_go)
+
+    def prepare_to_delivery(self):
+        sleep(3)
+        links_to_item = list()
+        elements = self.browser.get_elements_by_xpath(self.x_lnk_to_item)
+        if elements is None:
+            raise LinksToItemNotFoundError
+
+        while True:
+            links_to_item += [
+                self.browser.get_element_info(element, 'href')
+                for element in elements]
+            # aria-disabled="true"
+            next_btn = self.browser.get_element_or_none(self.x_next_page)
+            if next_btn.get_attribute('aria-disabled'):
+                break
+            self.browser.btn_click(next_btn)
+            sleep(3)
+
+            elements = self.browser.get_elements_by_xpath(self.x_lnk_to_item)
+
+        for link_to_item in links_to_item:
+            yield link_to_item

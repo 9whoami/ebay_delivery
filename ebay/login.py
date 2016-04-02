@@ -27,7 +27,7 @@ class Signin:
         login_url = config.urls['login']
         self.browser.get(login_url)
         try:
-            assert self.recognize_captha()
+            assert self.recognize_captcha()
             assert self.fill_login()
             assert self.fill_passwd()
             self.submit_form()
@@ -41,20 +41,17 @@ class Signin:
 
     def fill_login(self):
         xpath = config.login_xpath['login']
-
         return self.browser.filling_web_element(xpath, self.login)
 
     def fill_passwd(self):
         xpath = config.login_xpath['passwd']
-
         return self.browser.filling_web_element(xpath, self.password)
 
     def submit_form(self):
         xpath = config.login_xpath['submit']
-
         return self.browser.btn_click(xpath)
 
-    def recognize_captha(self):
+    def recognize_captcha(self):
         xpath_to_captha = config.login_xpath['captcha']
         xpath_to_captcha_edit = config.login_xpath['captcha_edit']
 

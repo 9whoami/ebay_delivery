@@ -21,9 +21,7 @@ class RecognizeCaptcha(AntiGate):
 
     @staticmethod
     def crop_image(image_name, captcha_size):
-        image_name = conf.screen_dir + image_name
-
-        image = Image.open(image_name)
+        image = Image.open(conf.screen_dir + image_name)
         image.crop(captcha_size).save(conf.temp_dir + image_name)
 
     def _balance(self):

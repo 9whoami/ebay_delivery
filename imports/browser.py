@@ -122,8 +122,8 @@ class WebDriver(metaclass=SwithSuperMetaclass):
         :return:
         """
         for i in range(0, 4):
-            timeout = config.load_timeout + i * 10
-            self.set_page_load_timeout(timeout)
+            # timeout = config.load_timeout + i * 10
+            # self.set_page_load_timeout(timeout)
             logger.info(
                 '{!r}-ая попытка перехода по url: {!r}'.format(i + 1, url))
 
@@ -134,7 +134,7 @@ class WebDriver(metaclass=SwithSuperMetaclass):
                 continue
             else:
                 logger.info('Страница загружена')
-                self.set_page_load_timeout(config.load_timeout)
+                # self.set_page_load_timeout(config.load_timeout)
                 return True
 
     def _get(self, url):

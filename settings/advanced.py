@@ -7,6 +7,9 @@ __description__ = """
 Более тонкие настройки требующие накоторого понимания
 """
 
+#
+limit_partial_text = 'maximum number'
+
 # Параметры запуска для phantomjs,
 # чтобы знать доступные параметры в консоле phantomjs --help.
 # Пример:
@@ -17,13 +20,13 @@ service_args = None
 login_captcha_size = (325, 329, 476, 378)
 
 # Размеры каптчи для подтверждения отправки сообщения
-delivery_captcha_size = ()
+delivery_captcha_size = (40, 1020, 220, 1070)
 
 # Файл с аккаунтами. Маска login:password
 accounts_file = 'accounts.txt'
 
 # Файл с текстом сообщения. Первая строка файла - заголовок сообщения
-message_file = None
+message_file = 'message.txt'
 
 # Режим отладки.
 debug = True

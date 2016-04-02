@@ -10,8 +10,10 @@ __description__ = """
 
 
 class BaseError(Exception):
-    def __init__(self):
-        self.message = None
+    def __init__(self, message):
+        if message is None:
+            message = self.__class__.__name__
+        self.message = message
         self.logger = Logger()
 
     def __str__(self):
@@ -20,12 +22,20 @@ class BaseError(Exception):
 
 
 class SigninError(BaseError):
-    def __init__(self, msg):
-        super().__init__()
-        self.message = msg
+    def __init__(self, message=None):
+        super().__init__(message)
 
 
 class KeywordsError(BaseError):
-    def __init__(self, message):
-        super().__init__()
-        self.message = message
+    def __init__(self, message=None):
+        super().__init__(message)
+
+
+class LinksToItemNotFoundError(BaseError):
+    def __init__(self, message=None):
+        super().__init__(message)
+
+
+class SendMessageError(BaseError):
+    def __init__(self, message=None):
+        super().__init__(message)
