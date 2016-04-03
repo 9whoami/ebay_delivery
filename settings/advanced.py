@@ -8,7 +8,7 @@ __description__ = """
 """
 
 #
-limit_partial_text = 'maximum number'
+limit_partial_text = 'maximum number of messages'
 
 # Параметры запуска для phantomjs,
 # чтобы знать доступные параметры в консоле phantomjs --help.
@@ -27,6 +27,9 @@ accounts_file = 'accounts.txt'
 
 # Файл с текстом сообщения. Первая строка файла - заголовок сообщения
 message_file = 'message.txt'
+
+#
+seller_cache = '/seller_cache.txt'
 
 # Режим отладки.
 debug = True

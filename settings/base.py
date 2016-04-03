@@ -46,6 +46,3 @@ temp_dir = '/temp'
 
 # Папка для скриншотов с браузера
 screen_dir = '/screen_shots'
-
-#
-seller_cache = '/seller_cache.txt'

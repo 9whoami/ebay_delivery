@@ -10,7 +10,6 @@ __date__ = '27.03.16 0:55'
 __description__ = """
 Вход в аккаунт
 """
-logger = Logger()
 
 
 class Signin:
@@ -19,6 +18,7 @@ class Signin:
         self.browser = browser
         self.login = login
         self.password = password
+        self.logger = Logger()
 
         if auto_start:
             self.run()
@@ -33,21 +33,24 @@ class Signin:
             self.submit_form()
             assert self.check_signin()
         except AssertionError:
-            logger.error('Не удалось войти на сайт')
+            self.logger.error('Не удалось войти на сайт')
             return False
         else:
-            logger.info("Вошли на сайт")
+            self.logger.info("Вошли на сайт")
             return True
 
     def fill_login(self):
+        self.logger.info('Заполняю логин')
         xpath = config.login_xpath['login']
         return self.browser.filling_web_element(xpath, self.login)
 
     def fill_passwd(self):
+        self.logger.info('Заполняю пароль')
         xpath = config.login_xpath['passwd']
         return self.browser.filling_web_element(xpath, self.password)
 
     def submit_form(self):
+        self.logger.info('Отправляем форму')
         xpath = config.login_xpath['submit']
         return self.browser.btn_click(xpath)
 
@@ -58,16 +61,22 @@ class Signin:
         if not self.browser.get_element_or_none(xpath_to_captha):
             return True
 
+        self.logger.info('Обнаружена каптча. Приступаю к расшифровке')
         scr_name = self.browser.take_screenshot()
+
         recaptcha = RecognizeCaptcha()
         recaptcha.recognize(scr_name, config.login_captcha_size)
         if recaptcha.captcha_result:
+            self.logger.info(
+                'Получен ответ: {}'.format(recaptcha.captcha_result))
             return self.browser.filling_web_element(xpath_to_captcha_edit,
                                                     recaptcha.captcha_result)
         else:
+            self.logger.error('Не удалось получить ответ...')
             return False
 
     def check_signin(self):
+        self.logger.info('Проверяем вход')
         xpath_to_error_text = config.login_xpath['error']
         xpath_to_my_name = config.login_xpath['my_name']
         redirect_url = config.urls['redirect_after_login']

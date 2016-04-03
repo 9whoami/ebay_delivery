@@ -40,4 +40,7 @@ def _prepare_file(file):
 log_dir = _prepare_path(log_dir)
 temp_dir = _prepare_path(temp_dir)
 screen_dir = _prepare_path(screen_dir)
+
 seller_cache = _prepare_file(seller_cache)
+accounts_file = _prepare_file(accounts_file)
+message_file = _prepare_file(message_file)
