@@ -1,0 +1,5 @@
+antigate==1.4.0
+Pillow==3.2.0
+selenium==2.53.1
+six==1.10.0
+xmltodict==0.10.1
