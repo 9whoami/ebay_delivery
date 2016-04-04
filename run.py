@@ -52,6 +52,8 @@ def main():
         delivery.run(search.prepare_to_delivery())
     except AssertionError:
         exit()
+    except Exception as e:
+        logger.critical(e)
 
 
 

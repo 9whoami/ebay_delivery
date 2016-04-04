@@ -20,7 +20,7 @@ service_args = None
 login_captcha_size = (325, 329, 476, 378)
 
 # Размеры каптчи для подтверждения отправки сообщения
-delivery_captcha_size = (40, 1020, 220, 1070)
+delivery_captcha_size = (40, 1020, 220, 1100)
 
 # Файл с аккаунтами. Маска login:password
 accounts_file = 'accounts.txt'
